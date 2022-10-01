@@ -23,13 +23,20 @@ export default class App extends Component {
     this.Toast = React.createRef();
     this.state = {
       visible : false,
+    
       persona: {
         id: null,
         firstName: null,
         lastName: null,
         address: null,
         phone : null
-      }};
+      },
+      selectedPerson : {
+      },
+      
+      
+    };
+
     this.items = [
       {
         label: 'Nuevo',
@@ -39,7 +46,8 @@ export default class App extends Component {
       {
         label: 'Editar',
         icon: 'pi pi-fw pi-pencil',
-        command: () => {this.showSaveDialog()}
+        command : () => {this.showEditDialog()}
+       
       },
       {
         label: 'Eliminar',
@@ -72,7 +80,8 @@ save(){
         apellido: null,
         direccion: null,
         telefono : null
-      }
+      },
+     
     });
     
     this.Toast.current.show({
@@ -80,21 +89,24 @@ save(){
       severity: "success",
       summary: "Atention!",
       detail: "the save successful.",
+
     });
     this.personService.getAll().then(data => this.setState({ personas: data }))
-   console.log(data);
+   
 
   })
 }
 
   render() {
     return (
+   
       <div style={{ width: '80%', marginTop: '20%', margin: '0 auto' }}>
         <Menubar model={this.items} />
 
 
         <Panel header="React Java Applications" >
-          <DataTable value={this.state.personas}>
+          <DataTable value={this.state.personas} paginator={true} rows="4" selectionMode="single" selection={this.state.selectedPerson} onSelectionChange={e => this.setState({selectedPerson: e.value})} >
+          
             <Column field="personId" header="ID"></Column>
             <Column field="firstName" header="FirstName"></Column>
             <Column field="lastName" header="LastName"></Column>
@@ -104,21 +116,22 @@ save(){
         </Panel>
         
         <Dialog header="Create Person" visible={this.state.visible} footer= {this.footer} style={{ width: '500px' }}  modal={true} onHide={() => this.setState({ visible: false })}>
+        <form id="person-form">
         <span className="p-float-label">
-          <InputText style={{width : '100%'}} value={this.state.value} id="firstName" onChange={(e) => {
+          <InputText style={{width : '100%'}} value={this.state.persona.firstName} id="firstName" onChange={(e) => {
             let val = e.target.value;
-          
+            console.log(val)
             this.setState(prevState => {
               let persona = Object.assign({}, prevState.persona);
               persona.firstName = val
-
               return { persona };
-            })}}/>          
+            })}
+            }/>          
             <label htmlFor="firstName">FirstName</label>
         </span>
         <br/>
         <span className="p-float-label">
-          <InputText style={{width : '100%'}} value={this.state.value} id="lastName" onChange={(e) => {
+          <InputText style={{width : '100%'}} value={this.state.persona.lastName} id="lastName" onChange={(e) => {
             let val = e.target.value;
             this.setState(prevState => {
               let persona = Object.assign({}, prevState.persona);
@@ -132,7 +145,7 @@ save(){
         </span>
         <br/>
         <span className="p-float-label">
-          <InputText style={{width : '100%'}} value={this.state.value} id="address" onChange={(e) => {
+          <InputText style={{width : '100%'}} value={this.state.persona.address} id="address" onChange={(e) => {
             let val = e.target.value;
             this.setState(prevState => {
               let persona = Object.assign({}, prevState.persona);
@@ -146,7 +159,7 @@ save(){
         </span>
         <br/>
         <span className="p-float-label">
-          <InputText style={{width : '100%'}} value={this.state.value} id="phone" onChange={(e) => {
+          <InputText style={{width : '100%'}} value={this.state.persona.phone} id="phone" onChange={(e) => {
             let val = e.target.value;
             this.setState(prevState => {
               let persona = Object.assign({}, prevState.persona);
@@ -155,10 +168,10 @@ save(){
             })}}/>
             <label htmlFor="phone">Phone</label>
         </span>
-        <br/>
+        </form>
         </Dialog>
         <Toast ref={this.Toast} />
-       
+        
       </div>
     );
   }
@@ -167,13 +180,29 @@ save(){
       visible: true,
       persona : {
         id: null,
-        nombre: null,
-        apellido: null,
-        direccion: null,
-        telefono : null
+        firstName: null,
+        lastName: null,
+        address: null,
+        phone : null
       }
     });
-    document.getElementById('persona-form').reset();
+    document.getElementById('person-form').reset();
+    
+  }
+  showEditDialog() {
+    this.setState({
+      visible : true,    
+      persona : {
+        id: this.state.selectedPerson.id,
+        firstName: this.state.selectedPerson.firstName,
+        lastName: this.state.selectedPerson.lastName,
+        address: this.state.selectedPerson.address,
+        phone : this.state.selectedPerson.phone
+       
+      }
+      
+    })
+    
   }
 }
 
